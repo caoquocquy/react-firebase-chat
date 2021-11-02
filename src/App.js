@@ -10,12 +10,17 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 
 firebase.initializeApp({
-  // your config
+  apiKey: "AIzaSyCiayL5gckfiPlySqBruNIEXMF0EqobJB0",
+  authDomain: "chitchat-e2594.firebaseapp.com",
+  projectId: "chitchat-e2594",
+  storageBucket: "chitchat-e2594.appspot.com",
+  messagingSenderId: "209982560306",
+  appId: "1:209982560306:web:c4a239a1c7ba06ada9042b",
+  measurementId: "G-42DPLRRXWL"
 })
 
 const auth = firebase.auth();
 const firestore = firebase.firestore();
-const analytics = firebase.analytics();
 
 
 function App() {
@@ -25,7 +30,6 @@ function App() {
   return (
     <div className="App">
       <header>
-        <h1>⚛️🔥💬</h1>
         <SignOut />
       </header>
 
@@ -40,14 +44,13 @@ function App() {
 function SignIn() {
 
   const signInWithGoogle = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
+    const provider = new firebase.auth.FacebookAuthProvider();
     auth.signInWithPopup(provider);
   }
 
   return (
     <>
-      <button className="sign-in" onClick={signInWithGoogle}>Sign in with Google</button>
-      <p>Do not violate the community guidelines or you will be banned for life!</p>
+      <button className="sign-in" onClick={signInWithGoogle}>Đăng nhập với Facebook</button>
     </>
   )
 
@@ -55,7 +58,7 @@ function SignIn() {
 
 function SignOut() {
   return auth.currentUser && (
-    <button className="sign-out" onClick={() => auth.signOut()}>Sign Out</button>
+    <button className="sign-out" onClick={() => auth.signOut()}>Thoát</button>
   )
 }
 
@@ -97,9 +100,9 @@ function ChatRoom() {
 
     <form onSubmit={sendMessage}>
 
-      <input value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="say something nice" />
+      <input value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Bạn đang nghĩ..." />
 
-      <button type="submit" disabled={!formValue}>🕊️</button>
+      <button type="submit" disabled={!formValue}>Gửi </button>
 
     </form>
   </>)
@@ -107,13 +110,12 @@ function ChatRoom() {
 
 
 function ChatMessage(props) {
-  const { text, uid, photoURL } = props.message;
+  const { text, uid } = props.message;
 
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
   return (<>
     <div className={`message ${messageClass}`}>
-      <img src={photoURL || 'https://api.adorable.io/avatars/23/abott@adorable.png'} />
       <p>{text}</p>
     </div>
   </>)
