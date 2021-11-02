@@ -1,122 +1,126 @@
 import React, { useRef, useState } from 'react';
 import './App.css';
 
-import firebase from 'firebase/app';
-import 'firebase/firestore';
-import 'firebase/auth';
-import 'firebase/analytics';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
+import 'firebase/compat/storage';
 
-import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
+import Linkify from 'react-linkify';
+import camera from './camera.png';
 
 firebase.initializeApp({
-  // your config
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 })
 
-const auth = firebase.auth();
 const firestore = firebase.firestore();
-const analytics = firebase.analytics();
+const storage = firebase.storage();
 
 
 function App() {
+  const [code, setCode] = useState('');
 
-  const [user] = useAuthState(auth);
+  const onCodeChange = (e) => {
+    setCode(e.target.value)
+  }
 
   return (
     <div className="App">
-      <header>
-        <h1>⚛️🔥💬</h1>
-        <SignOut />
-      </header>
-
-      <section>
-        {user ? <ChatRoom /> : <SignIn />}
-      </section>
-
+      { code === process.env.REACT_APP_PASS_CODE ? <section><ChatRoom /></section> : <input id="code" value={code} onChange={onCodeChange} placeholder="Mã đăng nhập..." /> }
     </div>
   );
 }
 
-function SignIn() {
-
-  const signInWithGoogle = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider);
-  }
-
-  return (
-    <>
-      <button className="sign-in" onClick={signInWithGoogle}>Sign in with Google</button>
-      <p>Do not violate the community guidelines or you will be banned for life!</p>
-    </>
-  )
-
-}
-
-function SignOut() {
-  return auth.currentUser && (
-    <button className="sign-out" onClick={() => auth.signOut()}>Sign Out</button>
-  )
-}
-
-
 function ChatRoom() {
+  const pageSize = 10;
   const dummy = useRef();
-  const messagesRef = firestore.collection('messages');
-  const query = messagesRef.orderBy('createdAt').limit(25);
-
-  const [messages] = useCollectionData(query, { idField: 'id' });
-
   const [formValue, setFormValue] = useState('');
+  const [countValue, setCountValue] = useState(pageSize);
 
+  const messagesRef = firestore.collection('messages');
+  var query = messagesRef.orderBy('createdAt').limitToLast(countValue);
+  var [messages] = useCollectionData(query, { idField: 'id' });
 
   const sendMessage = async (e) => {
     e.preventDefault();
 
-    const { uid, photoURL } = auth.currentUser;
+    if (formValue.length === 0) {
+      return;
+    }
+
+    const text = formValue;
+    setFormValue('');
 
     await messagesRef.add({
-      text: formValue,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      uid,
-      photoURL
+      text: text,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     })
 
-    setFormValue('');
     dummy.current.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  const handleImageAsFile = (e) => {
+    e.preventDefault();
+
+    const file = e.target.files[0]
+    const ref = storage.ref(`/images/${file.name}`);
+    const uploadTask = ref.put(file);
+    uploadTask.on("state_changed", console.log, console.error, () => {
+      ref
+        .getDownloadURL()
+        .then((url) => {
+          messagesRef.add({
+            image_url: url,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          })
+
+          dummy.current.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+  }
+
+  const handleLoadMore = (e) => {
+    e.preventDefault();
+
+    setCountValue(countValue + pageSize);
   }
 
   return (<>
     <main>
-
+      {messages && messages.length >= pageSize && <button onClick={handleLoadMore}>Tải tin nhắn cũ hơn</button>}
       {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
-
       <span ref={dummy}></span>
-
     </main>
 
     <form onSubmit={sendMessage}>
-
-      <input value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="say something nice" />
-
-      <button type="submit" disabled={!formValue}>🕊️</button>
-
+      <input value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Bạn đang nghĩ..." />
+      <label>
+        <img className="camera" src={camera} alt="" />
+        <input type="file" onChange={handleImageAsFile} />
+      </label>
     </form>
   </>)
 }
 
 
 function ChatMessage(props) {
-  const { text, uid, photoURL } = props.message;
+  const { text, image_url } = props.message;
 
-  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
+  const messageClass = 'received';
 
   return (<>
-    <div className={`message ${messageClass}`}>
-      <img src={photoURL || 'https://api.adorable.io/avatars/23/abott@adorable.png'} />
-      <p>{text}</p>
-    </div>
-  </>)
+    <Linkify properties={{target: '_blank', style: {color: 'red', fontWeight: 'bold'}}}>
+      <div className={`message ${messageClass}`}>
+        { text ? <p>{text}</p> : <img src={image_url} alt="" /> }
+      </div>
+    </Linkify>
+</>)
 }
 
 
