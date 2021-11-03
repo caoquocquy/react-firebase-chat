@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
 
 import firebase from 'firebase/app';
@@ -62,8 +62,11 @@ function ChatRoom() {
 
     setFormValue('');
     dummy.current.scrollIntoView({ behavior: 'smooth' });
-    textInput.current.focus();
   }
+
+  useEffect(() => {
+    textInput && textInput.current.focus();
+  });
 
   return (<>
     <main>
