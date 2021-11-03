@@ -43,8 +43,9 @@ function App() {
 
 function ChatRoom() {
   const dummy = useRef();
+  const textInput = useRef();
   const messagesRef = firestore.collection('messages');
-  const query = messagesRef.orderBy('createdAt').limitToLast(25);
+  const query = messagesRef.orderBy('createdAt').limitToLast(20);
 
   const [messages] = useCollectionData(query, { idField: 'id' });
 
@@ -61,24 +62,18 @@ function ChatRoom() {
 
     setFormValue('');
     dummy.current.scrollIntoView({ behavior: 'smooth' });
-    e.focus();
+    textInput.current.focus();
   }
 
   return (<>
     <main>
-
       {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
-
       <span ref={dummy}></span>
-
     </main>
 
     <form onSubmit={sendMessage}>
-
-      <input value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Bạn đang nghĩ..." />
-
-      <button type="submit" disabled={!formValue}>Gửi </button>
-
+      <input ref={textInput} value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Bạn đang nghĩ..." />
+      <button type="submit" disabled={!formValue}>Gửi</button>
     </form>
   </>)
 }
