@@ -30,43 +30,21 @@ function App() {
   return (
     <div className="App">
       <header>
-        <SignOut />
+        <h1>^(@_^)^</h1>
       </header>
 
       <section>
-        {user ? <ChatRoom /> : <SignIn />}
+        <ChatRoom />
       </section>
 
     </div>
   );
 }
 
-function SignIn() {
-
-  const signInWithGoogle = () => {
-    const provider = new firebase.auth.FacebookAuthProvider();
-    auth.signInWithPopup(provider);
-  }
-
-  return (
-    <>
-      <button className="sign-in" onClick={signInWithGoogle}>Đăng nhập với Facebook</button>
-    </>
-  )
-
-}
-
-function SignOut() {
-  return auth.currentUser && (
-    <button className="sign-out" onClick={() => auth.signOut()}>Thoát</button>
-  )
-}
-
-
 function ChatRoom() {
   const dummy = useRef();
   const messagesRef = firestore.collection('messages');
-  const query = messagesRef.orderBy('createdAt').limit(25);
+  const query = messagesRef.orderBy('createdAt').limitToLast(25);
 
   const [messages] = useCollectionData(query, { idField: 'id' });
 
@@ -76,17 +54,14 @@ function ChatRoom() {
   const sendMessage = async (e) => {
     e.preventDefault();
 
-    const { uid, photoURL } = auth.currentUser;
-
     await messagesRef.add({
       text: formValue,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      uid,
-      photoURL
     })
 
     setFormValue('');
     dummy.current.scrollIntoView({ behavior: 'smooth' });
+    e.focus();
   }
 
   return (<>
@@ -110,9 +85,9 @@ function ChatRoom() {
 
 
 function ChatMessage(props) {
-  const { text, uid } = props.message;
+  const { text } = props.message;
 
-  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
+  const messageClass = 'received';
 
   return (<>
     <div className={`message ${messageClass}`}>
