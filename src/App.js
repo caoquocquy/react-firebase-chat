@@ -10,13 +10,13 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 
 firebase.initializeApp({
-  apiKey: "AIzaSyCiayL5gckfiPlySqBruNIEXMF0EqobJB0",
-  authDomain: "chitchat-e2594.firebaseapp.com",
-  projectId: "chitchat-e2594",
-  storageBucket: "chitchat-e2594.appspot.com",
-  messagingSenderId: "209982560306",
-  appId: "1:209982560306:web:c4a239a1c7ba06ada9042b",
-  measurementId: "G-42DPLRRXWL"
+  apiKey: "AIzaSyDLSRJnI8JYHIXnFmMr0qg1y38N3urM3-Q",
+  authDomain: "foggy-2c749.firebaseapp.com",
+  projectId: "foggy-2c749",
+  storageBucket: "foggy-2c749.appspot.com",
+  messagingSenderId: "669406465856",
+  appId: "1:669406465856:web:e9ec501f91ee5690ebb4a5",
+  measurementId: "G-X11JE04T1K"
 })
 
 const auth = firebase.auth();
