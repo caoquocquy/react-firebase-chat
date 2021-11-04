@@ -76,7 +76,6 @@ function ChatRoom() {
 
     <form onSubmit={sendMessage}>
       <input ref={textInput} value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Bạn đang nghĩ..." />
-      <input type="file" />
       <button type="submit" disabled={!formValue}>Gửi</button>
     </form>
   </>)
