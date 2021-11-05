@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import './App.css';
 
 import firebase from 'firebase/app';
@@ -8,6 +8,7 @@ import 'firebase/analytics';
 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
+import Linkify from 'react-linkify';
 
 firebase.initializeApp({
   apiKey: "AIzaSyDLSRJnI8JYHIXnFmMr0qg1y38N3urM3-Q",
@@ -24,8 +25,6 @@ const firestore = firebase.firestore();
 
 
 function App() {
-
-  const [user] = useAuthState(auth);
 
   return (
     <div className="App">
@@ -84,9 +83,11 @@ function ChatMessage(props) {
 
   return (<>
     <div className={`message ${messageClass}`}>
-      <p>{text}</p>
-    </div>
-  </>)
+      <Linkify properties={{target: '_blank', style: {color: 'red', fontWeight: 'bold'}}}>
+        <p>{text}</p>
+      </Linkify>
+  </div>
+</>)
 }
 
 
