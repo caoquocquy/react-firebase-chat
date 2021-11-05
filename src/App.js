@@ -1,12 +1,9 @@
 import React, { useRef, useState } from 'react';
 import './App.css';
 
-import firebase from 'firebase/app';
-import 'firebase/firestore';
-import 'firebase/auth';
-import 'firebase/analytics';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 
-import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import Linkify from 'react-linkify';
 
@@ -20,7 +17,6 @@ firebase.initializeApp({
   measurementId: "G-X11JE04T1K"
 })
 
-const auth = firebase.auth();
 const firestore = firebase.firestore();
 
 
@@ -35,7 +31,6 @@ function App() {
       <section>
         <ChatRoom />
       </section>
-
     </div>
   );
 }
