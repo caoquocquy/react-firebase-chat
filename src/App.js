@@ -48,12 +48,14 @@ function ChatRoom() {
   const sendMessage = async (e) => {
     e.preventDefault();
 
+    const text = formValue;
+    setFormValue('');
+
     await messagesRef.add({
-      text: formValue,
+      text: text,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     })
 
-    setFormValue('');
     dummy.current.scrollIntoView({ behavior: 'smooth' });
   }
 
