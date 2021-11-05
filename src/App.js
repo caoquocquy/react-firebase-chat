@@ -3,9 +3,11 @@ import './App.css';
 
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
+import 'firebase/compat/storage';
 
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import Linkify from 'react-linkify';
+import camera from './camera.png';
 
 firebase.initializeApp({
   apiKey: "AIzaSyDLSRJnI8JYHIXnFmMr0qg1y38N3urM3-Q",
@@ -18,16 +20,13 @@ firebase.initializeApp({
 })
 
 const firestore = firebase.firestore();
+const storage = firebase.storage();
 
 
 function App() {
 
   return (
     <div className="App">
-      <header>
-        <h1>^(@_^)^</h1>
-      </header>
-
       <section>
         <ChatRoom />
       </section>
@@ -53,10 +52,30 @@ function ChatRoom() {
 
     await messagesRef.add({
       text: text,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     })
 
     dummy.current.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  const handleImageAsFile = (e) => {
+    e.preventDefault();
+
+    const file = e.target.files[0]
+    const ref = storage.ref(`/images/${file.name}`);
+    const uploadTask = ref.put(file);
+    uploadTask.on("state_changed", console.log, console.error, () => {
+      ref
+        .getDownloadURL()
+        .then((url) => {
+          messagesRef.add({
+            image_url: url,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          })
+
+          dummy.current.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
   }
 
   return (<>
@@ -67,6 +86,10 @@ function ChatRoom() {
 
     <form onSubmit={sendMessage}>
       <input value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Bạn đang nghĩ..." />
+      <label>
+        <img className="camera" src={camera} alt="" />
+        <input type="file" onChange={handleImageAsFile} />
+      </label>
       <button type="submit" disabled={!formValue}>Gửi</button>
     </form>
   </>)
@@ -74,16 +97,16 @@ function ChatRoom() {
 
 
 function ChatMessage(props) {
-  const { text } = props.message;
+  const { text, image_url } = props.message;
 
   const messageClass = 'received';
 
   return (<>
-    <div className={`message ${messageClass}`}>
-      <Linkify properties={{target: '_blank', style: {color: 'red', fontWeight: 'bold'}}}>
-        <p>{text}</p>
-      </Linkify>
-  </div>
+    <Linkify properties={{target: '_blank', style: {color: 'red', fontWeight: 'bold'}}}>
+      <div className={`message ${messageClass}`}>
+        { text ? <p>{text}</p> : <img src={image_url} alt="" /> }
+      </div>
+    </Linkify>
 </>)
 }
 
