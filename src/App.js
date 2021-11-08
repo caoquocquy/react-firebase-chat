@@ -28,15 +28,19 @@ const storage = firebase.storage();
 
 function App() {
   const [user] = useAuthState(auth);
+  const [showMessage, setShowMessage] = useState(true);
 
   return (
     <div className="App">
       <header>
         <SignOut />
+        { user && <button onClick={() => setShowMessage(!showMessage)}>{ showMessage ? 'Hình Ảnh' : 'Tin Nhắn' }</button> }
       </header>
 
       <section>
-        {user ? <ChatRoom /> : <SignIn />}
+        { user && showMessage && <ChatRoom /> }
+        { user && !showMessage && <Photos /> }
+        { !user && <SignIn /> }
       </section>
     </div>
   );
@@ -140,6 +144,17 @@ function ChatRoom() {
   </>)
 }
 
+function Photos() {
+  const messagesRef = firestore.collection('messages');
+  const query = messagesRef.where("image_url", "!=", "null")
+  const [messages] = useCollectionData(query, { idField: 'id' });
+
+  return (<>
+    <main className="photos">
+      {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
+    </main>
+  </>)
+}
 
 function ChatMessage(props) {
   const { text, image_url } = props.message;

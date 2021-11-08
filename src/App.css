@@ -42,6 +42,11 @@ main {
   flex-direction: column;
 }
 
+.photos {
+  height: 100vh;
+  margin: 0;
+}
+
 main::-webkit-scrollbar {
   width: 0.25rem;
 }
