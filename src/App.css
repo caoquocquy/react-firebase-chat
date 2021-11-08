@@ -158,10 +158,8 @@ img {
   padding: 0;
 }
 
-#code {
+#password {
+  width: 50%;
   padding: 10px;
-  top: 10%;
-  position: absolute;
-  left: 0px ;
   text-align: center;
 }

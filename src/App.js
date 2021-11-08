@@ -4,7 +4,9 @@ import './App.css';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
+import 'firebase/compat/auth';
 
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import Linkify from 'react-linkify';
 import camera from './camera.png';
@@ -19,26 +21,47 @@ firebase.initializeApp({
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 })
 
+const auth = firebase.auth();
 const firestore = firebase.firestore();
 const storage = firebase.storage();
 
 
 function App() {
-  const [code, setCode] = useState('');
-
-  const onCodeChange = (e) => {
-    setCode(e.target.value)
-  }
+  const [user] = useAuthState(auth);
 
   return (
     <div className="App">
-      {
-        code === process.env.REACT_APP_PASS_CODE ?
-        <section><ChatRoom /></section> :
-        <input type="password" id="code" value={code} onChange={onCodeChange} placeholder="Vui lòng nhập mật mã..." />
-      }
+      <header>
+        <SignOut />
+      </header>
+
+      <section>
+        {user ? <ChatRoom /> : <SignIn />}
+      </section>
     </div>
   );
+}
+
+function SignIn() {
+  const onChange = (e) => {
+    const password = e.target.value;
+
+    if (password.length === parseInt(process.env.REACT_APP_PASSWORD_LENGTH)) {
+      auth.signInWithEmailAndPassword(process.env.REACT_APP_SHARED_EMAIL, password);
+    }
+  }
+
+  return (
+    <div>
+      <input id="password" type="password" maxlength="6" placeholder="Vui lòng nhập mật mã..." onChange={onChange} />
+    </div>
+  )
+}
+
+function SignOut() {
+  return auth.currentUser && (
+    <button className="sign-out" onClick={() => auth.signOut()}>Thoát</button>
+  )
 }
 
 function ChatRoom() {
@@ -46,24 +69,27 @@ function ChatRoom() {
   const dummy = useRef();
   const [formValue, setFormValue] = useState('');
   const [countValue, setCountValue] = useState(pageSize);
+  const [user] = useAuthState(auth);
 
-  const messagesRef = firestore.collection('messages');
+  var messagesRef = firestore.collection('messages');
   var query = messagesRef.orderBy('createdAt').limitToLast(countValue);
   var [messages] = useCollectionData(query, { idField: 'id' });
 
   const sendMessage = async (e) => {
+    console.log(user.uid);
+
     e.preventDefault();
 
-    if (formValue.length === 0) {
-      return;
-    }
+    if (formValue.length === 0) { return; }
 
     const text = formValue;
+
     setFormValue('');
 
     await messagesRef.add({
       text: text,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      uid: user.uid
     })
 
     dummy.current.scrollIntoView({ behavior: 'smooth' });
@@ -75,13 +101,15 @@ function ChatRoom() {
     const file = e.target.files[0]
     const ref = storage.ref(`/images/${file.name}`);
     const uploadTask = ref.put(file);
+
     uploadTask.on("state_changed", console.log, console.error, () => {
       ref
         .getDownloadURL()
         .then((url) => {
           messagesRef.add({
             image_url: url,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            uid: user.uid
           })
 
           dummy.current.scrollIntoView({ behavior: 'smooth' });
