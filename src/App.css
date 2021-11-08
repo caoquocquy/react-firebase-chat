@@ -45,6 +45,7 @@ main {
 .photos {
   height: 100vh;
   margin: 0;
+  padding-top: 10vh;
 }
 
 main::-webkit-scrollbar {
