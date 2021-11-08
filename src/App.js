@@ -103,7 +103,9 @@ function ChatRoom() {
     e.preventDefault();
 
     const file = e.target.files[0]
-    const ref = storage.ref(`/images/${file.name}`);
+    if (!file) { return; }
+
+    const ref = storage.ref(`/images/${Date.now()}_${file.name}`);
     const uploadTask = ref.put(file);
 
     uploadTask.on("state_changed", console.log, console.error, () => {
@@ -117,6 +119,7 @@ function ChatRoom() {
           })
 
           dummy.current.scrollIntoView({ behavior: 'smooth' });
+          e.target.value = null;
         });
     });
   }
