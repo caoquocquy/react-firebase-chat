@@ -32,7 +32,11 @@ function App() {
 
   return (
     <div className="App">
-      { code === process.env.REACT_APP_PASS_CODE ? <section><ChatRoom /></section> : <input id="code" value={code} onChange={onCodeChange} placeholder="Mã đăng nhập..." /> }
+      {
+        code === process.env.REACT_APP_PASS_CODE ?
+        <section><ChatRoom /></section> :
+        <input type="password" id="code" value={code} onChange={onCodeChange} placeholder="Vui lòng nhập mật mã..." />
+      }
     </div>
   );
 }
