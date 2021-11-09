@@ -1,15 +1,15 @@
-import React, { useRef, useState } from 'react';
-import './App.css';
+import React, { useRef, useState } from "react";
+import "./App.css";
 
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
-import 'firebase/compat/storage';
-import 'firebase/compat/auth';
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
+import "firebase/compat/storage";
+import "firebase/compat/auth";
 
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { useCollectionData } from 'react-firebase-hooks/firestore';
-import Linkify from 'react-linkify';
-import camera from './camera.png';
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useCollectionData } from "react-firebase-hooks/firestore";
+import Linkify from "react-linkify";
+import camera from "./camera.png";
 
 firebase.initializeApp({
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -34,7 +34,7 @@ function App() {
     <div className="App">
       <header>
         <SignOut />
-        { user && <button onClick={() => setShowMessage(!showMessage)}>{ showMessage ? 'Hình Ảnh' : 'Tin Nhắn' }</button> }
+        { user && <button onClick={() => setShowMessage(!showMessage)}>{ showMessage ? "Hình Ảnh" : "Tin Nhắn" }</button> }
       </header>
 
       <section>
@@ -71,13 +71,13 @@ function SignOut() {
 function ChatRoom() {
   const pageSize = 10;
   const dummy = useRef();
-  const [formValue, setFormValue] = useState('');
+  const [formValue, setFormValue] = useState("");
   const [countValue, setCountValue] = useState(pageSize);
   const [user] = useAuthState(auth);
 
-  var messagesRef = firestore.collection('messages');
-  var query = messagesRef.orderBy('createdAt').limitToLast(countValue);
-  var [messages] = useCollectionData(query, { idField: 'id' });
+  var messagesRef = firestore.collection("messages");
+  var query = messagesRef.orderBy("createdAt").limitToLast(countValue);
+  var [messages] = useCollectionData(query, { idField: "id" });
 
   const sendMessage = async (e) => {
     console.log(user.uid);
@@ -88,7 +88,7 @@ function ChatRoom() {
 
     const text = formValue;
 
-    setFormValue('');
+    setFormValue("");
 
     await messagesRef.add({
       text: text,
@@ -96,7 +96,7 @@ function ChatRoom() {
       uid: user.uid
     })
 
-    dummy.current.scrollIntoView({ behavior: 'smooth' });
+    dummy.current.scrollIntoView({ behavior: "smooth" });
   }
 
   const handleImageAsFile = (e) => {
@@ -118,7 +118,7 @@ function ChatRoom() {
             uid: user.uid
           })
 
-          dummy.current.scrollIntoView({ behavior: 'smooth' });
+          dummy.current.scrollIntoView({ behavior: "smooth" });
           e.target.value = null;
         });
     });
@@ -148,13 +148,13 @@ function ChatRoom() {
 }
 
 function Photos() {
-  const messagesRef = firestore.collection('messages');
-  const query = messagesRef.where("image_url", "!=", "null")
-  const [messages] = useCollectionData(query, { idField: 'id' });
+  const messagesRef = firestore.collection("messages");
+  const query = messagesRef.orderBy("createdAt", "desc")
+  const [messages] = useCollectionData(query, { idField: "id" });
 
   return (<>
     <main className="photos">
-      {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
+      {messages && messages.filter(msg => msg.image_url != null).map(msg => <ChatMessage key={msg.id} message={msg} />)}
     </main>
   </>)
 }
@@ -162,10 +162,10 @@ function Photos() {
 function ChatMessage(props) {
   const { text, image_url } = props.message;
 
-  const messageClass = 'received';
+  const messageClass = "received";
 
   return (<>
-    <Linkify properties={{target: '_blank', style: {color: 'red', fontWeight: 'bold'}}}>
+    <Linkify properties={{target: "_blank", style: {color: "red", fontWeight: "bold"}}}>
       <div className={`message ${messageClass}`}>
         { text ? <p>{text}</p> : <img src={image_url} alt="" /> }
       </div>
