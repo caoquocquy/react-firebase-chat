@@ -149,12 +149,20 @@ function ChatRoom() {
 
 function Photos() {
   const messagesRef = firestore.collection("messages");
-  const query = messagesRef.orderBy("createdAt", "desc")
+  const query = messagesRef.where("image_url", "!=", "null")
   const [messages] = useCollectionData(query, { idField: "id" });
 
   return (<>
     <main className="photos">
-      {messages && messages.filter(msg => msg.image_url != null).map(msg => <ChatMessage key={msg.id} message={msg} />)}
+      {
+        messages &&
+        messages.sort((msg1, msg2) => {
+                  if (msg1.createdAt < msg2.createdAt) { return 1; }
+                  if (msg1.createdAt > msg2.createdAt) { return -1; }
+                  return 0;
+                })
+                .map(msg => <ChatMessage key={msg.id} message={msg} />)
+      }
     </main>
   </>)
 }
