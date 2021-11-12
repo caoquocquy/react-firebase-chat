@@ -42,6 +42,16 @@ main {
   flex-direction: column;
 }
 
+.main_typing {
+  height: 70vh;
+  margin: 10vh 0 20vh;
+}
+
+.typing_indicator {
+  position: fixed;
+  bottom: 10vh;
+}
+
 .photos {
   height: 100vh;
   margin: 0;
