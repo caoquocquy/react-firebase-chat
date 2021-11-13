@@ -149,6 +149,8 @@ function ChatRoom() {
   }
 
   const startTyping = () => {
+    if (typingBy > 0) { return; }
+
     typingByRef.set(timestamp);
   }
 
