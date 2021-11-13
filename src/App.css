@@ -141,6 +141,13 @@ p {
   text-align: left;
 }
 
+.timestamp {
+  background: none !important;
+  color: darkgrey !important;
+  padding: 10px !important;
+  font-size: 13px !important;
+}
+
 .message {
   display: flex;
   align-items: center;

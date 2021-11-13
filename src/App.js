@@ -12,6 +12,11 @@ import { useCollectionData } from "react-firebase-hooks/firestore";
 import Linkify from "react-linkify";
 import camera from "./camera.png";
 
+import TimeAgo from "javascript-time-ago"
+import vi from 'javascript-time-ago/locale/vi.json'
+TimeAgo.addDefaultLocale(vi)
+const timeAgo = new TimeAgo('en-US')
+
 firebase.initializeApp({
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
@@ -218,14 +223,15 @@ function Photos() {
 }
 
 function ChatMessage(props) {
-  const { text, image_url } = props.message;
+  const { createdAt, text, image_url } = props.message;
 
   const messageClass = "received";
 
   return (<>
     <Linkify properties={{target: "_blank", style: {color: "red", fontWeight: "bold"}}}>
       <div className={`message ${messageClass}`}>
-        { text ? <p>{text}</p> : <img src={image_url} alt="" /> }
+        {text ? <p>{text}</p> : <img src={image_url} alt="" />}
+        {text && createdAt && <p className="timestamp">{timeAgo.format(createdAt.toDate())}</p>}
       </div>
     </Linkify>
 </>)
